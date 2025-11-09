@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, boolean, timestamp, decimal, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, boolean, timestamp, jsonb, index, pgEnum } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -7,15 +7,30 @@ export const roleEnum = pgEnum("role", ["worker", "household", "admin"]);
 export const verificationStatusEnum = pgEnum("verification_status", ["pending", "verified", "rejected"]);
 export const bookingStatusEnum = pgEnum("booking_status", ["pending", "active", "completed", "cancelled"]);
 
+// Session storage table (required for Replit Auth)
+export const sessions = pgTable(
+  "sessions",
+  {
+    sid: varchar("sid").primaryKey(),
+    sess: jsonb("sess").notNull(),
+    expire: timestamp("expire").notNull(),
+  },
+  (table) => [index("IDX_session_expire").on(table.expire)],
+);
+
 // Users table - stores auth and role information
+// Compatible with Replit Auth requirements
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  email: text("email").notNull().unique(),
-  name: text("name").notNull(),
-  role: roleEnum("role").notNull(),
+  email: varchar("email").unique(),
+  firstName: varchar("first_name"),
+  lastName: varchar("last_name"),
+  profileImageUrl: varchar("profile_image_url"),
+  role: roleEnum("role"),
   contact: text("contact"),
   location: text("location"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Worker profiles - extended info for workers
@@ -63,13 +78,14 @@ export const transactions = pgTable("transactions", {
 });
 
 // Insert schemas
-export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
+export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertWorkerProfileSchema = createInsertSchema(workerProfiles).omit({ id: true });
 export const insertHouseholdProfileSchema = createInsertSchema(householdProfiles).omit({ id: true });
 export const insertBookingSchema = createInsertSchema(bookings).omit({ id: true, createdAt: true, completedAt: true });
 export const insertTransactionSchema = createInsertSchema(transactions).omit({ id: true, createdAt: true });
 
 // Types
+export type UpsertUser = typeof users.$inferInsert;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 
