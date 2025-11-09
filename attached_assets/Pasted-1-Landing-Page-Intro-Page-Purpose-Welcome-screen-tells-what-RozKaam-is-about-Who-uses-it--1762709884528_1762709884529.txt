@@ -1,0 +1,61 @@
+1️⃣ Landing Page (Intro Page)
+Purpose: Welcome screen — tells what RozKaam is about.
+Who uses it: Everyone (public view, no login yet).
+Features:
+App title: RozKaam
+Short description: “Connecting verified workers with households — trusted, simple, and local.”
+Two buttons:
+👷 Login as Worker
+🏠 Login as Household
+2️⃣ Login Page
+Purpose: Authenticate user (Worker or Household).
+Flow:
+The selected role (worker/household) is remembered from the previous page.
+Common fields:
+Email
+Password
+Extra optional fields (for signup later):
+Contact number
+Location or Pincode
+For worker → manual entry: “Services you provide”
+If login succeeds:
+Token is stored in browser (localStorage)
+Automatically redirects to:
+Worker → /worker-dashboard 
+Household → /household-dashboard
+Worker Dashboard
+Purpose: Main panel for workers.
+Who uses it: Logged-in workers only.
+Features:
+Shows worker’s name, profile photo, and status (Available / Busy).
+“Edit Profile” → change contact, location, skills, upload police verification doc.
+“Toggle Availability” → tells households if the worker is free.
+“View Bookings” → shows all job requests.
+“Mark Completed” → once a job is done → triggers payment & commission logic.
+4️⃣ Household Dashboard
+Purpose: For households to find and hire workers.
+Features:
+Shows user profile (name, address, contact).
+Search bar:
+Filter workers by skill (“Plumber”, “Cleaner”, etc.) or filtering by price range can also be done.
+Filter by Pincode or Location
+Displays verified worker cards:
+Name, skill, charge, availability
+“Hire Now” → creates booking request
+5️⃣ Payment & Commission flow
+Purpose: Handle payments once a booking is completed.
+Flow:
+Household marks payment as done.
+Worker marks “Job Completed.”
+Backend logic:
+payment method should be done 
+Calculates total → takes 5% commission for RozKaam
+Worker’s share stored in transaction record
+RozKaam’s earnings logged
+6️⃣ Admin Dashboard (Private)
+Purpose: For you (developer/admin) to monitor everything.
+Features:
+View all registered workers
+Approve / Reject workers (police verification check)
+View all bookings
+View total transactions and commission earned
